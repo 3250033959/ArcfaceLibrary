@@ -1,14 +1,14 @@
 package com.chanzhu.arcfacelibrary;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Toast;
@@ -18,12 +18,8 @@ import com.arcsoft.face.FaceEngine;
 import com.chanzhu.arcfacelibrary.activity.RegisterAndRecognizeActivity;
 import com.chanzhu.arcfacelibrary.common.Constants;
 import com.chanzhu.arcfacelibrary.faceserver.FaceServer;
-import com.chanzhu.arcfacelibrary.util.ImageUtil;
 import com.chanzhu.arcfacelibrary.widget.ProgressDialog;
-import com.darsh.multipleimageselect.activities.AlbumSelectActivity;
-import com.darsh.multipleimageselect.models.Image;
 
-import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -52,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         progressDialog = new ProgressDialog(this);
         activeEngine();
+        FaceServer.getInstance().init(MainActivity.this);
     }
 
     @Override
@@ -67,9 +64,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void photoRegister(View view) {
-        Intent intent = new Intent(MainActivity.this, AlbumSelectActivity.class);
-        intent.putExtra(com.darsh.multipleimageselect.helpers.Constants.INTENT_EXTRA_LIMIT, 1);
-        startActivityForResult(intent, com.darsh.multipleimageselect.helpers.Constants.REQUEST_CODE);
+
     }
 
     public void videoRegister(View view) {
@@ -80,46 +75,28 @@ public class MainActivity extends AppCompatActivity {
         startActivity(new Intent(MainActivity.this, RegisterAndRecognizeActivity.class));
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == com.darsh.multipleimageselect.helpers.Constants.REQUEST_CODE && resultCode == RESULT_OK && data != null) {
-            final ArrayList<Image> images = data.getParcelableArrayListExtra(com.darsh.multipleimageselect.helpers.Constants.INTENT_EXTRA_IMAGES);
-//            StringBuffer stringBuffer = new StringBuffer();
-//            for (int i = 0, l = images.size(); i < l; i++) {
-//                stringBuffer.append(images.get(i).path + "\n");
-//            }
-//            ;
-            executorService.execute(new Runnable() {
-                @Override
-                public void run() {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            progressDialog.setMaxProgress(1);
-                            progressDialog.show();
-                        }
-                    });
-                    Bitmap bitmap = BitmapFactory.decodeFile(images.get(0).path);
-                    bitmap = ImageUtil.alignBitmapForNv21(bitmap);
-                    byte[] nv21 = ImageUtil.bitmapToNv21(bitmap, bitmap.getWidth(), bitmap.getHeight());
-                    boolean success = FaceServer.getInstance().register(MainActivity.this, nv21, bitmap.getWidth(), bitmap.getHeight(),
-                            images.get(0).path.substring(0, images.get(0).path.lastIndexOf(".")));
-                    if (success)
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (progressDialog != null) {
-                                    progressDialog.refreshProgress(1);
-                                    progressDialog.dismiss();
-                                }
-                                showToast(getString(R.string.register_success));
-                            }
-                        });
-                }
 
-            });
+    public void clearFaces(View view) {
+        int faceNum = FaceServer.getInstance().getFaceNumber(this);
+        if (faceNum == 0) {
+            Toast.makeText(this, R.string.no_face_need_to_delete, Toast.LENGTH_SHORT).show();
+        } else {
+            AlertDialog dialog = new AlertDialog.Builder(this)
+                    .setTitle(R.string.notification)
+                    .setMessage(getString(R.string.confirm_delete, faceNum))
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            int deleteCount = FaceServer.getInstance().clearAllFaces(MainActivity.this);
+                            Toast.makeText(MainActivity.this, deleteCount + " faces cleared!", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, null)
+                    .create();
+            dialog.show();
         }
     }
+
 
     /**
      * 激活引擎
@@ -152,7 +129,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onNext(Integer activeCode) {
                         if (activeCode == ErrorInfo.MOK) {
                             showToast(getString(R.string.active_success));
-                            FaceServer.getInstance().init(MainActivity.this);
                         } else if (activeCode == ErrorInfo.MERR_ASF_ALREADY_ACTIVATED) {
                             showToast(getString(R.string.already_activated));
                         } else {

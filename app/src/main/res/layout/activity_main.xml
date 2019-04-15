@@ -26,6 +26,12 @@
         android:onClick="registerConfirm"
         android:text="视频验证" />
 
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="80dip"
+        android:onClick="clearFaces"
+        android:text="清理注册" />
+
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
