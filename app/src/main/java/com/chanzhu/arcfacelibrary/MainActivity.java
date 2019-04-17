@@ -19,7 +19,6 @@ import com.arcsoft.face.FaceEngine;
 import com.chanzhu.arcfacelibrary.activity.RegisterAndRecognizeActivity;
 import com.chanzhu.arcfacelibrary.common.Constants;
 import com.chanzhu.arcfacelibrary.faceserver.FaceServer;
-import com.chanzhu.arcfacelibrary.widget.ProgressDialog;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -41,13 +40,11 @@ public class MainActivity extends AppCompatActivity {
     };///sdcard/DCIM/Camera/IMG_20190319_164936.jpg///sdcard/arcfacedemo/register
     private Toast toast;
     private ExecutorService executorService = Executors.newSingleThreadExecutor();
-    private ProgressDialog progressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        progressDialog = new ProgressDialog(this);
         activeEngine();
         FaceServer.getInstance().init(MainActivity.this);
     }
@@ -56,9 +53,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         if (executorService != null && !executorService.isShutdown()) {
             executorService.shutdownNow();
-        }
-        if (progressDialog != null && progressDialog.isShowing()) {
-            progressDialog.dismiss();
         }
         FaceServer.getInstance().unInit();
         super.onDestroy();

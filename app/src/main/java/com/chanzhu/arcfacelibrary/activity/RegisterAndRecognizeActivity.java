@@ -13,9 +13,6 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -46,7 +43,6 @@ import com.chanzhu.arcfacelibrary.util.face.FaceHelper;
 import com.chanzhu.arcfacelibrary.util.face.FaceListener;
 import com.chanzhu.arcfacelibrary.util.face.RequestFeatureStatus;
 import com.chanzhu.arcfacelibrary.widget.FaceRectView;
-import com.chanzhu.arcfacelibrary.widget.ShowFaceInfoAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +77,6 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
     private FaceEngine faceEngine;
     private FaceHelper faceHelper;
     private List<CompareResult> compareResultList;
-    private ShowFaceInfoAdapter adapter;
     /**
      * 活体检测的开关
      */
@@ -115,7 +110,6 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
      */
     private FaceRectView faceRectView;
 
-//    private Switch switchLivenessDetect;
 
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
     private static final float SIMILAR_THRESHOLD = 0.8F;
@@ -163,22 +157,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
         } else {
             registerBtn.setVisibility(View.GONE);
         }
-//        switchLivenessDetect = findViewById(R.id.switch_liveness_detect);
-//        switchLivenessDetect.setChecked(livenessDetect);
-//        switchLivenessDetect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-//            @Override
-//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-//                livenessDetect = isChecked;
-//            }
-//        });
-        RecyclerView recyclerShowFaceInfo = findViewById(R.id.recycler_view_person);
         compareResultList = new ArrayList<>();
-        adapter = new ShowFaceInfoAdapter(compareResultList, this);
-        recyclerShowFaceInfo.setAdapter(adapter);
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-        int spanCount = (int) (dm.widthPixels / (getResources().getDisplayMetrics().density * 100 + 0.5f));
-        recyclerShowFaceInfo.setLayoutManager(new GridLayoutManager(this, spanCount));
-        recyclerShowFaceInfo.setItemAnimator(new DefaultItemAnimator());
     }
 
     /**
@@ -455,7 +434,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
             for (int i = compareResultList.size() - 1; i >= 0; i--) {
                 if (!keySet.contains(compareResultList.get(i).getTrackId())) {
                     compareResultList.remove(i);
-                    adapter.notifyItemRemoved(i);
+//                    adapter.notifyItemRemoved(i);
                 }
             }
         }
@@ -536,12 +515,12 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                                 //对于多人脸搜索，假如最大显示数量为 MAX_DETECT_NUM 且有新的人脸进入，则以队列的形式移除
                                 if (compareResultList.size() >= MAX_DETECT_NUM) {
                                     compareResultList.remove(0);
-                                    adapter.notifyItemRemoved(0);
+//                                    adapter.notifyItemRemoved(0);
                                 }
                                 //添加显示人员时，保存其trackId
                                 compareResult.setTrackId(requestId);
                                 compareResultList.add(compareResult);
-                                adapter.notifyItemInserted(compareResultList.size() - 1);
+//                                adapter.notifyItemInserted(compareResultList.size() - 1);
                             }
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.SUCCEED);
                             faceHelper.addName(requestId, compareResult.getUserName());
