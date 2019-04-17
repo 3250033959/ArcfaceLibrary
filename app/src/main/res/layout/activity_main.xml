@@ -7,12 +7,6 @@
     android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <Button
-        android:layout_width="match_parent"
-        android:layout_height="80dip"
-        android:onClick="photoRegister"
-        android:text="照片注册"
-        app:layout_constraintEnd_toStartOf="parent" />
 
     <Button
         android:layout_width="match_parent"

@@ -36,6 +36,10 @@ public class FaceServer {
     public static final String SAVE_IMG_DIR = "register" + File.separator + "imgs";
     private static final String SAVE_FEATURE_DIR = "register" + File.separator + "features";
 
+    public static FaceRegisterInfo getFaceRegisterInfoListLastItem() {
+        return faceRegisterInfoList != null ? faceRegisterInfoList.get(faceRegisterInfoList.size() - 1) : null;
+    }
+
     /**
      * 是否正在搜索人脸，保证搜索操作单线程进行
      */

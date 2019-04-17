@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -63,18 +64,28 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    public void photoRegister(View view) {
-
-    }
-
     public void videoRegister(View view) {
-
+        Intent intent = new Intent(this, RegisterAndRecognizeActivity.class);
+        intent.putExtra("register", true);
+        startActivityForResult(intent, 112);
     }
 
     public void registerConfirm(View view) {
         startActivity(new Intent(MainActivity.this, RegisterAndRecognizeActivity.class));
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 112) {
+            if (resultCode == 119) {//注册成功
+                byte[] featureData = data.getByteArrayExtra("featureData");
+                Toast.makeText(MainActivity.this, featureData.toString(), Toast.LENGTH_SHORT).show();
+            } else if (resultCode == 110) {//识别成功
+
+            }
+        }
+    }
 
     public void clearFaces(View view) {
         int faceNum = FaceServer.getInstance().getFaceNumber(this);

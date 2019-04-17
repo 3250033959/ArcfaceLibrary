@@ -1,6 +1,7 @@
 package com.chanzhu.arcfacelibrary.activity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Point;
@@ -20,8 +21,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.WindowManager;
-import android.widget.CompoundButton;
-import android.widget.Switch;
+import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.arcsoft.face.AgeInfo;
@@ -36,6 +37,7 @@ import com.chanzhu.arcfacelibrary.faceserver.CompareResult;
 import com.chanzhu.arcfacelibrary.faceserver.FaceServer;
 import com.chanzhu.arcfacelibrary.model.DrawInfo;
 import com.chanzhu.arcfacelibrary.model.FacePreviewInfo;
+import com.chanzhu.arcfacelibrary.model.FaceRegisterInfo;
 import com.chanzhu.arcfacelibrary.util.ConfigUtil;
 import com.chanzhu.arcfacelibrary.util.DrawHelper;
 import com.chanzhu.arcfacelibrary.util.camera.CameraHelper;
@@ -113,7 +115,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
      */
     private FaceRectView faceRectView;
 
-    private Switch switchLivenessDetect;
+//    private Switch switchLivenessDetect;
 
     private static final int ACTION_REQUEST_PERMISSIONS = 0x001;
     private static final float SIMILAR_THRESHOLD = 0.8F;
@@ -124,6 +126,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
             Manifest.permission.CAMERA,
             Manifest.permission.READ_PHONE_STATE
     };
+    private boolean register;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,7 +134,12 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
         setContentView(R.layout.activity_register_and_recognize);
         //保持亮屏
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
+        DisplayMetrics metric = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metric);
+//        metric.widthPixels
+        FrameLayout screen = findViewById(R.id.screen);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(metric.widthPixels, metric.widthPixels);
+        screen.setLayoutParams(params);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WindowManager.LayoutParams attributes = getWindow().getAttributes();
             attributes.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
@@ -148,14 +156,21 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
         previewView.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
         faceRectView = findViewById(R.id.face_rect_view);
-        switchLivenessDetect = findViewById(R.id.switch_liveness_detect);
-        switchLivenessDetect.setChecked(livenessDetect);
-        switchLivenessDetect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                livenessDetect = isChecked;
-            }
-        });
+        Button registerBtn = findViewById(R.id.register_btn);
+        register = getIntent().getBooleanExtra("register", false);
+        if (register) {
+            registerBtn.setVisibility(View.VISIBLE);
+        } else {
+            registerBtn.setVisibility(View.GONE);
+        }
+//        switchLivenessDetect = findViewById(R.id.switch_liveness_detect);
+//        switchLivenessDetect.setChecked(livenessDetect);
+//        switchLivenessDetect.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+//            @Override
+//            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+//                livenessDetect = isChecked;
+//            }
+//        });
         RecyclerView recyclerShowFaceInfo = findViewById(R.id.recycler_view_person);
         compareResultList = new ArrayList<>();
         adapter = new ShowFaceInfoAdapter(compareResultList, this);
@@ -334,6 +349,14 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                                 public void onNext(Boolean success) {
                                     String result = success ? "register success!" : "register failed!";
                                     Toast.makeText(RegisterAndRecognizeActivity.this, result, Toast.LENGTH_SHORT).show();
+                                    FaceRegisterInfo faceRegisterInfo = FaceServer.getInstance().getFaceRegisterInfoListLastItem();
+                                    if (null != faceRegisterInfo) {
+                                        //TODO 回调faceRegisterInfo.getFeatureData()特征数据
+                                        Intent intent = new Intent();
+                                        intent.putExtra("featureData", faceRegisterInfo.getFeatureData());
+                                        setResult(119, intent);
+                                        finish();
+                                    }
                                     registerStatus = REGISTER_STATUS_DONE;
                                 }
 
@@ -469,7 +492,8 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                         if (compareResult == null) {
                             emitter.onError(null);
                         } else {
-                            emitter.onNext(compareResult);
+                            if (!register)
+                                emitter.onNext(compareResult);
                         }
                     }
                 })
@@ -491,6 +515,11 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
 
 //                        Log.i(TAG, "onNext: fr search get result  = " + System.currentTimeMillis() + " trackId = " + requestId + "  similar = " + compareResult.getSimilar());
                         if (compareResult.getSimilar() > SIMILAR_THRESHOLD) {
+                            Toast.makeText(RegisterAndRecognizeActivity.this, "人脸配对成功", Toast.LENGTH_SHORT).show();
+                            //TODO 回调人脸识别成功
+                            setResult(110);
+                            finish();
+
                             boolean isAdded = false;
                             if (compareResultList == null) {
                                 requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);

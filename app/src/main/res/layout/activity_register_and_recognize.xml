@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <FrameLayout
+        android:id="@+id/screen"
         android:layout_width="1000px"
-        android:layout_height="1000px">
+        android:layout_height="1000px"
+        android:layout_gravity="center">
 
         <TextureView
             android:id="@+id/texture_preview"
@@ -20,15 +20,16 @@
             android:layout_height="match_parent" />
     </FrameLayout>
 
-    <Switch
-        android:id="@+id/switch_liveness_detect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:layout_margin="20dp"
-        android:text="@string/liveness_detect" />
+    <!--<Switch-->
+    <!--android:id="@+id/switch_liveness_detect"-->
+    <!--android:layout_width="wrap_content"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:layout_gravity="bottom"-->
+    <!--android:layout_margin="20dp"-->
+    <!--android:text="@string/liveness_detect" />-->
 
     <Button
+        android:id="@+id/register_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
