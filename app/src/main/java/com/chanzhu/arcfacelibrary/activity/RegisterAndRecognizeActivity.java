@@ -30,6 +30,7 @@ import com.arcsoft.face.GenderInfo;
 import com.arcsoft.face.LivenessInfo;
 import com.arcsoft.face.VersionInfo;
 import com.chanzhu.arcfacelibrary.R;
+import com.chanzhu.arcfacelibrary.common.Constants;
 import com.chanzhu.arcfacelibrary.faceserver.CompareResult;
 import com.chanzhu.arcfacelibrary.faceserver.FaceServer;
 import com.chanzhu.arcfacelibrary.model.DrawInfo;
@@ -333,7 +334,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                                         //TODO 回调faceRegisterInfo.getFeatureData()特征数据
                                         Intent intent = new Intent();
                                         intent.putExtra("featureData", faceRegisterInfo.getFeatureData());
-                                        setResult(119, intent);
+                                        setResult(Constants.FACE_REGISTER_RESULT_CODE, intent);
                                         finish();
                                     }
                                     registerStatus = REGISTER_STATUS_DONE;
@@ -343,6 +344,8 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                                 public void onError(Throwable e) {
                                     Toast.makeText(RegisterAndRecognizeActivity.this, "register failed!", Toast.LENGTH_SHORT).show();
                                     registerStatus = REGISTER_STATUS_DONE;
+                                    setResult(Constants.FACE_REGISTER_FAILED_RESULT_CODE);
+                                    finish();
                                 }
 
                                 @Override
@@ -496,7 +499,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                         if (compareResult.getSimilar() > SIMILAR_THRESHOLD) {
                             Toast.makeText(RegisterAndRecognizeActivity.this, "人脸配对成功", Toast.LENGTH_SHORT).show();
                             //TODO 回调人脸识别成功
-                            setResult(110);
+                            setResult(Constants.FACE_RECOGNIZE_RESULT_CODE);
                             finish();
 
                             boolean isAdded = false;
@@ -526,6 +529,8 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                             faceHelper.addName(requestId, compareResult.getUserName());
 
                         } else {
+                            setResult(Constants.FACE_RECOGNIZE_FAILED_RESULT_CODE);
+                            finish();
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
                             faceHelper.addName(requestId, "VISITOR " + requestId);
                         }

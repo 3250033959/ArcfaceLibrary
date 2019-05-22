@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void registerConfirm(View view) {
-        startActivity(new Intent(MainActivity.this, RegisterAndRecognizeActivity.class));
+        startActivityForResult(new Intent(MainActivity.this, RegisterAndRecognizeActivity.class), Constants.FACE_REQUEST_CODE);
     }
 
     @Override

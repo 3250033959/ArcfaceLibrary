@@ -193,21 +193,21 @@ public class DrawHelper {
         canvas.drawPath(mPath, paint);
 
 
-        if (drawInfo.getName() == null) {
-            paint.setStyle(Paint.Style.FILL_AND_STROKE);
-            paint.setTextSize(rect.width() / 8);
-
-            String str = (drawInfo.getSex() == GenderInfo.MALE ? "MALE" : (drawInfo.getSex() == GenderInfo.FEMALE ? "FEMALE" : "UNKNOWN"))
-                    + ","
-                    + (drawInfo.getAge() == AgeInfo.UNKNOWN_AGE ? "UNKNWON" : drawInfo.getAge())
-                    + ","
-                    + (drawInfo.getLiveness() == LivenessInfo.ALIVE ? "ALIVE" : (drawInfo.getLiveness() == LivenessInfo.NOT_ALIVE ? "NOT_ALIVE" : "UNKNOWN"));
-            canvas.drawText(str, rect.left, rect.top - 10, paint);
-        } else {
-            paint.setStyle(Paint.Style.FILL_AND_STROKE);
-            paint.setTextSize(rect.width() / 8);
-            canvas.drawText(drawInfo.getName(), rect.left, rect.top - 10, paint);
-        }
+//        if (drawInfo.getName() == null) {
+//            paint.setStyle(Paint.Style.FILL_AND_STROKE);
+//            paint.setTextSize(rect.width() / 8);
+//
+//            String str = (drawInfo.getSex() == GenderInfo.MALE ? "MALE" : (drawInfo.getSex() == GenderInfo.FEMALE ? "FEMALE" : "UNKNOWN"))
+//                    + ","
+//                    + (drawInfo.getAge() == AgeInfo.UNKNOWN_AGE ? "UNKNWON" : drawInfo.getAge())
+//                    + ","
+//                    + (drawInfo.getLiveness() == LivenessInfo.ALIVE ? "ALIVE" : (drawInfo.getLiveness() == LivenessInfo.NOT_ALIVE ? "NOT_ALIVE" : "UNKNOWN"));
+//            canvas.drawText(str, rect.left, rect.top - 10, paint);
+//        } else {
+//            paint.setStyle(Paint.Style.FILL_AND_STROKE);
+//            paint.setTextSize(rect.width() / 8);
+//            canvas.drawText(drawInfo.getName(), rect.left, rect.top - 10, paint);
+//        }
     }
 
     public void setPreviewWidth(int previewWidth) {

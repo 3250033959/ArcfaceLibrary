@@ -127,21 +127,20 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_and_recognize);
-        ConfigUtil.setFtOrient(this, FaceEngine.ASF_OP_0_HIGHER_EXT);
         //保持亮屏
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         DisplayMetrics metric = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metric);
-        int screenPixels=metric.widthPixels<metric.heightPixels?metric.widthPixels:metric.heightPixels;
+//        metric.widthPixels
         FrameLayout screen = findViewById(R.id.screen);
-        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(screenPixels, screenPixels);
+        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(metric.widthPixels, metric.widthPixels);
         screen.setLayoutParams(params);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
             WindowManager.LayoutParams attributes = getWindow().getAttributes();
             attributes.systemUiVisibility = View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION;
             getWindow().setAttributes(attributes);
         }
-
+        ConfigUtil.setFtOrient(this, FaceEngine.ASF_OP_0_HIGHER_EXT);
         // Activity启动后就锁定为启动时的方向
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         //本地人脸库初始化
@@ -315,7 +314,14 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                         @Override
                         public void subscribe(ObservableEmitter<Boolean> emitter) {
                             boolean success = FaceServer.getInstance().register(RegisterAndRecognizeActivity.this, nv21.clone(), previewSize.width, previewSize.height, "registered " + faceHelper.getCurrentTrackId());
-                            emitter.onNext(success);
+                            if (!success) {
+                                Toast.makeText(RegisterAndRecognizeActivity.this, "register failed!", Toast.LENGTH_SHORT).show();
+                                registerStatus = REGISTER_STATUS_DONE;
+                                setResult(Constants.FACE_REGISTER_FAILED_RESULT_CODE);
+                                finish();
+                            } else {
+                                emitter.onNext(success);
+                            }
                         }
                     })
                             .subscribeOn(Schedulers.computation())
@@ -345,6 +351,8 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                                 public void onError(Throwable e) {
                                     Toast.makeText(RegisterAndRecognizeActivity.this, "register failed!", Toast.LENGTH_SHORT).show();
                                     registerStatus = REGISTER_STATUS_DONE;
+                                    setResult(Constants.FACE_REGISTER_FAILED_RESULT_CODE);
+                                    finish();
                                 }
 
                                 @Override
@@ -463,8 +471,7 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
     }
 
     private void searchFace(final FaceFeature frFace, final Integer requestId) {
-        Observable
-                .create(new ObservableOnSubscribe<CompareResult>() {
+        Observable.create(new ObservableOnSubscribe<CompareResult>() {
                     @Override
                     public void subscribe(ObservableEmitter<CompareResult> emitter) {
 //                        Log.i(TAG, "subscribe: fr search start = " + System.currentTimeMillis() + " trackId = " + requestId);
@@ -530,12 +537,16 @@ public class RegisterAndRecognizeActivity extends AppCompatActivity implements V
                         } else {
                             requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
                             faceHelper.addName(requestId, "VISITOR " + requestId);
+                            setResult(Constants.FACE_RECOGNIZE_FAILED_RESULT_CODE);
+                            finish();
                         }
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         requestFeatureStatusMap.put(requestId, RequestFeatureStatus.FAILED);
+                        setResult(Constants.FACE_RECOGNIZE_FAILED_RESULT_CODE);
+                        finish();
                     }
 
                     @Override

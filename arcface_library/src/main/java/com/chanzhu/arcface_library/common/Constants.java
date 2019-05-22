@@ -9,5 +9,8 @@ public class Constants {
     public static final int FACE_REQUEST_CODE = 112;
     //人脸识别验证返回码
     public static final int FACE_RECOGNIZE_RESULT_CODE = 110;
-
+    //人脸识别验证码失败
+    public static final int FACE_RECOGNIZE_FAILED_RESULT_CODE = 111;
+    //人脸识别注册码失败
+    public static final int FACE_REGISTER_FAILED_RESULT_CODE = 113;
 }

@@ -61,22 +61,26 @@ public class MainActivity extends AppCompatActivity {
     public void videoRegister(View view) {
         Intent intent = new Intent(this, RegisterAndRecognizeActivity.class);
         intent.putExtra("register", true);
-        startActivityForResult(intent, 112);
+        startActivityForResult(intent, Constants.FACE_REQUEST_CODE);
     }
 
     public void registerConfirm(View view) {
-        startActivity(new Intent(MainActivity.this, RegisterAndRecognizeActivity.class));
+        startActivityForResult(new Intent(MainActivity.this, RegisterAndRecognizeActivity.class),Constants.FACE_REQUEST_CODE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == 112) {
-            if (resultCode == 119) {//注册成功
+        if (requestCode == Constants.FACE_REQUEST_CODE) {
+            if (resultCode == Constants.FACE_REGISTER_RESULT_CODE) {//注册成功
                 byte[] featureData = data.getByteArrayExtra("featureData");
                 Toast.makeText(MainActivity.this, featureData.toString(), Toast.LENGTH_SHORT).show();
-            } else if (resultCode == 110) {//识别成功
-
+            } else if (resultCode == Constants.FACE_RECOGNIZE_RESULT_CODE) {//识别成功
+                Toast.makeText(MainActivity.this, "Constants.FACE_RECOGNIZE_RESULT_CODE", Toast.LENGTH_SHORT).show();
+            }else if(resultCode == Constants.FACE_RECOGNIZE_FAILED_RESULT_CODE){
+                Toast.makeText(MainActivity.this, "Constants.FACE_RECOGNIZE_FAILED_RESULT_CODE", Toast.LENGTH_SHORT).show();
+            }else if(resultCode == Constants.FACE_RECOGNIZE_FAILED_RESULT_CODE){
+                Toast.makeText(MainActivity.this, "Constants.FACE_RECOGNIZE_FAILED_RESULT_CODE", Toast.LENGTH_SHORT).show();
             }
         }
     }
